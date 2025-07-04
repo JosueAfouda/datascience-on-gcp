@@ -868,7 +868,63 @@ La requête retourne bien **461 630 lignes**, correspondant aux données du mois
 
 ---
 
-Si tu veux, je peux aussi ajouter un paragraphe pour expliquer comment automatiser ce pipeline (par exemple via Cloud Scheduler ou un DAG Airflow), ou proposer un schéma de l’architecture ! Dis-le-moi !
+## Mise en place d'un CRON JOB
+
+L'objectif est de faire en sorte que le script `ingest_flights.py` s'exécute chaque jour à 23H00 sans intervention manuelle.
+
+Voici **étape par étape** comment mettre en place cela :
+
+---
+
+### 🧰 1. Ouvrir le fichier crontab
+
+```bash
+crontab -e
+```
+
+> Si c’est la première fois que tu l’utilises, il te demandera de choisir un éditeur (choisis nano si tu veux quelque chose de simple).
+
+---
+
+### 🖊️ 2. Ajouter cette ligne pour exécuter le script à 23h00 tous les jours
+
+```cron
+0 23 * * * /home/vant/Documents/learning/datascience-on-gcp/.venv/bin/python /home/vant/Documents/learning/datascience-on-gcp/data_ingestion/scheduling_monthly_downloads/ingest_flights.py --bucket ds-on-gcp-464823-dsongcp >> /home/vant/Documents/learning/datascience-on-gcp/data_ingestion/scheduling_monthly_downloads/log_ingest.log 2>&1
+```
+
+#### Détails :
+
+* `0 23 * * *` = tous les jours à 23h00
+* `/home/vant/Documents/learning/datascience-on-gcp/.venv/bin/python` est le bon interpréteur Python, avec tous tes packages installés.
+* `/home/vant/Documents/learning/datascience-on-gcp/data_ingestion/scheduling_monthly_downloads/ingest_flights.py` = chemin absolu vers ton script
+* `--bucket ds-on-gcp-464823-dsongcp` pour spécifier le nom de ton Bucket GCS.
+* `>> /home/vant/Documents/learning/datascience-on-gcp/data_ingestion/scheduling_monthly_downloads/log_ingest.log 2>&1` = enregistre la sortie (logs + erreurs) dans un fichier `.log` qui se trouvera dans le même dossier que le fichier `ingest_flights.py`.
+
+---
+
+### 🧪 3. Vérifier que ton environnement est bien configuré
+
+Le cron n’hérite **pas de ton environnement de terminal**, donc puisque le script `ingest_flights.py` a besoin de certaines authorisations se trouvant dans la clé `key.json` pour s'exécuter alors au début du code de `ingest_flights.py`, ajoute ceci :
+
+```python
+import os
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '/home/vant/Documents/learning/datascience-on-gcp/data_ingestion/scheduling_monthly_downloads/key.json'
+```
+
+---
+
+Tu peux tester manuellement cette ligne **hors cron** pour valider que tout fonctionne :
+
+```bash
+/home/vant/Documents/learning/datascience-on-gcp/.venv/bin/python /home/vant/Documents/learning/datascience-on-gcp/data_ingestion/scheduling_monthly_downloads/ingest_flights.py --bucket ds-on-gcp-464823-dsongcp
+```
+
+---
+
+
+
+
+
 
 
 

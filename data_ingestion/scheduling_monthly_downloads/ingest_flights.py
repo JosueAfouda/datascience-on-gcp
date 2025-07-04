@@ -9,6 +9,8 @@ from google.cloud import storage
 from google.cloud.storage import Blob # pip install google-cloud-storage
 from google.cloud import bigquery
 
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '/home/vant/Documents/learning/datascience-on-gcp/data_ingestion/scheduling_monthly_downloads/key.json'
+
 SOURCE = "https://transtats.bts.gov/PREZIP"
 
 def urlopen(url):
