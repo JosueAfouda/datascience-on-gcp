@@ -205,3 +205,7 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+
+data_ingestion/*.csv
+data_ingestion/scheduling_monthly_downloads/key.json
